@@ -919,3 +919,22 @@ Query result:
 +---------------+----------+
 Affected rows: 2
 */
+
+-- 46. Таблица "Нарушения ПДД", запросы корректировки
+/*
+Создать таблицу fine
+*/
+create table fine (
+    fine_id INT PRIMARY KEY AUTO_INCREMENT,
+    name varchar(30),
+    number_plate varchar(6),
+    violation varchar(50),
+    sum_fine decimal(8, 2),
+    date_violation date,
+    date_payment date
+    );
+/*
+Affected rows: 0
+*/
+
+-- 47. 
