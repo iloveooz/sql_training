@@ -1001,4 +1001,14 @@ Query result:
 Affected rows: 8
 */
 
+-- 49. Таблица "Нарушения ПДД", запросы корректировки
+/*
+Вывести фамилию, номер машины и нарушение только для тех водителей, которые на одной машине нарушили одно и тоже правило два и более раз.
+*/
+select name, number_plate, violation 
+from fine 
+group by name, number_plate, violation
+having count(violation) >= 2;
+/*
 
+*/
