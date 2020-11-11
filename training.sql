@@ -1171,11 +1171,33 @@ create table author (author_id INT PRIMARY KEY AUTO_INCREMENT, name_author varch
 Affected rows: 0
 */
 
--- 57. 
+-- 57.
+/*
+Заполнить таблицу author
+*/
 insert into author(name_author) values ('Булгаков М.А.');
 insert into author(name_author) values ('Достоевский Ф.М.');
 insert into author(name_author) values ('Есенин С.А.');
 insert into author(name_author) values ('Пастернак Б.Л.');
 select * from author;
 
--- 58. 
+-- 58. Создание таблицы с внешними ключами
+/*
+FOREIGN KEY (связанное_поле_зависимой_таблицы)  
+REFERENCES главная_таблица (связанное_поле_главной_таблицы)
+
+Создать таблицу book
+*/
+create table book (
+    book_id int PRIMARY key AUTO_INCREMENT,
+    title varchar(50),
+    author_id int,
+    genre_id int
+    price decimal(8, 2),
+    amount int,
+    foreign key (author_id) references author(author_id),
+    foreign key (genre_id) references genre(genre_id)
+);	
+/*
+Affected rows: 0
+*/
