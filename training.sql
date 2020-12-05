@@ -1406,3 +1406,32 @@ Query result:
 +----------------+------------+
 Affected rows: 3
 */
+
+-- 67. Запросы для нескольких таблиц со вложенными запросами
+/*
+В запросах, построенных на нескольких таблицах, можно использовать вложенные запросы. 
+Вложенный запрос может быть включен: после ключевого слова SELECT, после FROM и в условие отбора после WHERE (HAVING).
+Вывести в алфавитном порядке всех авторов, которые пишут только в одном жанре.
+*/
+select distinct name_author
+from author a
+inner join book b on a.author_id = b.author_id
+where a.author_id in (
+    select author_id 
+    from book b
+    inner join genre g on b.genre_id = g.genre_id
+    group by b.author_id 
+    having count(distinct(g.genre_id)) = 1)
+order by name_author asc;
+/*
+Query result:
++------------------+
+| name_author      |
++------------------+
+| Достоевский Ф.М. |
+| Пастернак Б.Л.   |
++------------------+
+Affected rows: 2
+*/
+
+
