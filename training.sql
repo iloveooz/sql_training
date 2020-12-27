@@ -1504,3 +1504,65 @@ Query result:
 +----------------+-------------+------------+
 Affected rows: 1
 */
+
+-- 70. 
+update book 
+inner join author on book.author_id = author.author_id
+inner join supply on book.title = supply.title and supply.author = author.name_author
+set book.price = if(book.price <> supply.price, (book.price * book.amount + supply.price * supply.amount) / (book.amount + supply.amount), book.price),
+book.amount = book.amount + supply.amount,
+supply.amount = 0
+where book.price <> supply.price;
+
+-- 71.
+insert into author(author_id, name_author)
+select supply_id as author_id, author
+from supply
+left join author
+on supply.author = author.name_author
+where author_id is null
+
+-- 72.
+insert into book(title, author_id, price, amount)
+select title, author_id, price, amount
+from author a inner join supply s on a.name_author = s.author
+where amount <> 0;
+select * from book;
+
+-- 73. 
+update book
+set genre_id = (select genre_id from genre where name_genre = 'Поэзия')
+where genre_id is null and book_id = 10;
+
+update book
+set genre_id = (select genre_id from genre where name_genre = 'Приключения')
+where genre_id is null and book_id = 11;
+
+select * from book;
+
+-- 74. 
+delete from author
+where author_id in (
+    select author_id from book
+    group by author_id
+    having sum(amount) < 20);
+select * from author;
+select * from book;
+
+
+-- 75. 
+delete from genre
+where genre_id in (
+    select genre_id from book
+    group by genre_id
+    having count(genre_id) < 3);
+select * from genre;
+select * from book;
+
+-- 76. 
+delete from author
+using author inner join book using (author_id) inner join genre using (genre_id)
+where genre.name_genre = 'Поэзия';
+
+select * from author;
+select * from book;
