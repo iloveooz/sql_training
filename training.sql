@@ -1566,3 +1566,87 @@ where genre.name_genre = 'Поэзия';
 
 select * from author;
 select * from book;
+
+-- 77.
+select buy.buy_id, book.title, book.price, buy_book.amount
+from client
+inner join buy using(client_id)
+inner join buy_book using(buy_id)
+inner join book using(book_id)
+where client.client_id = 1;
+
+-- 78. 
+select name_author, title, count(buy_book.book_id) as Количество
+from author
+    inner join book
+    on book.author_id = author.author_id
+    left join buy_book
+    on buy_book.book_id = book.book_id
+group by name_author, title
+order by name_author, title
+
+-- 79. 
+select city.name_city, count(*) as 'Количество'
+from buy 
+inner join client using (client_id)
+inner join city using (city_id)
+group by city.name_city
+order by city.name_city;
+
+-- 80. 
+select buy_id, date_step_end from buy_step
+where step_id = 1 and date_step_end is not null;
+
+-- 81.
+select buy.buy_id, client.name_client, sum(buy_book.amount * book.price) as 'Стоимость' from buy
+inner join client using(client_id)
+inner join buy_book using(buy_id)
+inner join book using(book_id)
+group by buy.buy_id
+order by buy.buy_id;
+
+-- 82. 
+select b.buy_id, s.name_step from buy_step as b
+inner join step as s using (step_id)
+where b.date_step_beg is not null and b.date_step_end is null;
+
+-- 83. 
+select buy.buy_id, datediff(buy_step.date_step_end, buy_step.date_step_beg) as 'Количество_дней', 
+if(city.days_delivery - datediff(buy_step.date_step_end, buy_step.date_step_beg) >= 0, 0, datediff(buy_step.date_step_end, buy_step.date_step_beg) - city.days_delivery) as 'Опоздание' from city
+join client using(city_id)
+join buy using(client_id)
+join buy_step using(buy_id)
+where buy_step.step_id = 3 and buy_step.date_step_end is not null
+order by buy.buy_id
+
+-- 83.
+select c.name_client from client as c
+inner join buy as b using(client_id)
+inner join buy_book as bb using(buy_id)
+inner join book as bk using(book_id)
+where bk.author_id = 2
+order by c.name_client asc;
+
+-- 84.
+select name_client from client
+join buy on buy.client_id=client.client_id
+join buy_book on buy.buy_id=buy_book.buy_id
+join book on book.book_id=buy_book.book_id
+join author on book.author_id = author.author_id
+where author.name_author like 'Достоевский%'
+order by name_client
+
+-- 85.
+select name_genre, sum(buy_book.amount) as 'Количество' from buy_book
+inner join book using(book_id)
+inner join genre using(genre_id)
+group by name_genre
+limit 1
+
+-- 86.
+insert into buy (buy_description, client_id)
+select 'Связаться со мной по вопросу доставки', client_id
+from client
+where name_client = 'Попов Илья';
+
+select * from buy;
