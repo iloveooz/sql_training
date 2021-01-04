@@ -1644,9 +1644,159 @@ group by name_genre
 limit 1
 
 -- 86.
+insert into client (client_id, name_client, city_id, email) 
+values (5, 'Попов Илья', 1, 'popov@test');
+
+-- 87.
 insert into buy (buy_description, client_id)
 select 'Связаться со мной по вопросу доставки', client_id
 from client
 where name_client = 'Попов Илья';
 
 select * from buy;
+
+-- 88.
+insert into buy_book(buy_id, book_id, amount)
+values (5, 8, 2);
+insert into buy_book(buy_id, book_id, amount)
+values (5, 2, 1);
+
+-- 89.
+update book 
+inner join buy_book using(book_id)
+set book.amount = book.amount - buy_book.amount
+where buy_book.buy_id = 5;
+select * from book;
+
+-- 90.
+create table buy_pay(title varchar(50), name_author varchar(50), price decimal(8, 2), amount int, Стоимость decimal(8, 2));
+
+insert into buy_pay (title, name_author, price, amount, Стоимость)
+select book.title, author.name_author, book.price, buy_book.amount, book.price * buy_book.amount from author
+inner join book using(author_id)
+inner join buy_book using(book_id)
+where buy_book.buy_id = 5
+order by book.title;
+
+select * from buy_pay;
+
+--91.
+create table buy_pay
+select bb.buy_id, sum(bb.amount) as 'Количество', sum(b.price * bb.amount) as ' Итого' from book as b
+inner join buy_book as bb using(book_id)
+where bb.buy_id = 5
+group by bb.buy_id;
+select * from buy_pay;
+
+-- 92. 
+insert into buy_step(buy_id, step_id)
+select buy_id, step_id from buy
+cross join step
+where buy_id = 5;
+select * from buy_step;
+
+-- 93. 
+update buy_step as bs
+inner join step as s using (step_id)
+set date_step_beg = '2020-04-12'
+where buy_id = 5 and name_step = 'Оплата';
+select bs.buy_step_id, bs.buy_id, bs.step_id, bs.date_step_beg, bs.date_step_end from step as s
+inner join buy_step as bs using(step_id)
+where bs.buy_id = 5;
+
+-- 94. 
+update buy_step as bs
+inner join step as s using (step_id)
+set date_step_end = '2020-04-13'
+where buy_id = 5 and name_step = 'Оплата';
+
+update buy_step as bs
+inner join step as s using (step_id)
+set date_step_beg = '2020-04-13'
+where buy_id = 5 and name_step = 'Упаковка';
+
+select bs.buy_step_id, bs.buy_id, bs.step_id, bs.date_step_beg, bs.date_step_end from step as s
+inner join buy_step as bs using(step_id)
+where bs.buy_id = 5;
+
+-- 95. 
+select st.name_student, a.date_attempt, a.result from attempt as a
+inner join student as st using (student_id)
+inner join subject as s  using (subject_id)
+where s.name_subject = 'Основы баз данных'
+order by a.result desc;
+
+-- 96. 
+select s.name_subject, count(a.result) as 'Количество', round(avg(a.result), 2) as 'Среднее' from subject as s
+left join attempt as a using (subject_id)
+group by s.name_subject;
+
+-- 97. 
+select s.name_student, a.result from attempt as a
+inner join student as s using (student_id)
+where result in (
+    select max(result) from attempt)
+order by name_student;
+
+-- 98. 
+select 
+st.name_student, 
+sb.name_subject, 
+datediff(max(a.date_attempt), min(a.date_attempt)) as 'Интервал' 
+
+from attempt as a
+inner join student as st using (student_id)
+inner join subject as sb using (subject_id)
+group by st.name_student, sb.name_subject
+having count(*) > 1
+order by Интервал;
+
+-- 99.
+select name_subject, count(distinct attempt.student_id) as Количество from subject
+left join attempt on attempt.subject_id=subject.subject_id
+group by subject.subject_id
+order by name_subject, Количество desc
+
+-- 100.
+select q.question_id, q.name_question from question as q
+inner join subject as s using (subject_id)
+where s.name_subject = 'Основы баз данных'
+order by rand()
+limit 3;
+
+-- 101.
+select q.name_question, a.name_answer, if (a.is_correct, 'Верно', 'Неверно') as 'Результат' from testing as t
+inner join question as q using (question_id)
+inner join answer as a using (answer_id)
+where t.attempt_id = 7;
+
+-- 102.
+select 
+st.name_student, 
+sb.name_subject, 
+att.date_attempt, 
+round(sum(an.is_correct) / 3 * 100, 2) as 'Результат' 
+from answer as an
+join testing as te using (answer_id)
+join attempt as att using (attempt_id)
+join subject as sb using (subject_id)
+join student as st using (student_id)
+group by st.name_student, sb.name_subject, att.date_attempt
+order by st.name_student, att.date_attempt desc
+
+-- 103.
+select
+sb.name_subject,
+concat(left(qu.name_question, 30), '...') as 'Вопрос',
+count(*) as 'Всего_ответов',
+round(sum(an.is_correct) / count(*) * 100, 2) as 'Успешность' 
+from subject as sb
+join question as qu using (subject_id)
+join testing as te using (question_id)
+join answer as an using (answer_id)
+group by qu.question_id
+order by sb.name_subject, Успешность desc, Вопрос;
+
+ 
+
+
